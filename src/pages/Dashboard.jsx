@@ -23,6 +23,8 @@ import {
   Eye,
   Lock,
   UserPlus,
+  Fuel,
+  Printer,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -440,6 +442,11 @@ export default function Dashboard() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // PDF Exporter
+  const exportPDF = () => {
+    window.print();
   };
 
   // ── Role Specific Render Configurations ────────────────────
@@ -1071,13 +1078,22 @@ export default function Dashboard() {
           </div>
 
           {/* Download & Settings actions */}
-          <button
-            onClick={downloadReport}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-bold text-xs hover:scale-[1.02] shadow-lg shadow-teal-500/10 hover:shadow-teal-500/25 transition-default cursor-pointer"
-          >
-            <Download className="w-4 h-4" />
-            Download Operations Report
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={downloadReport}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-bold text-xs hover:scale-[1.02] shadow-lg shadow-teal-500/10 hover:shadow-teal-500/25 transition-default cursor-pointer no-print"
+            >
+              <Download className="w-4 h-4" />
+              Download Operations Report
+            </button>
+            <button
+              onClick={exportPDF}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-white/[0.08] bg-white/[0.03] text-slate-200 font-bold text-xs hover:bg-white/[0.06] hover:scale-[1.02] transition-default cursor-pointer no-print"
+            >
+              <Printer className="w-4 h-4" />
+              Export PDF
+            </button>
+          </div>
         </div>
       </div>
     </div>
