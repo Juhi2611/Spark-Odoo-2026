@@ -197,6 +197,14 @@ export default function Trips() {
     fetchTrips();
     fetchVehicles();
     fetchDrivers();
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("add") === "true" || params.get("new") === "true") {
+      setModalOpen(true);
+      // Clean query parameter from URL without reloading
+      const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+    }
   }, [fetchTrips, fetchVehicles, fetchDrivers]);
 
   // ── Derived filtered lists for dropdowns ──────────────────────────────────

@@ -89,6 +89,14 @@ export default function Drivers() {
       setUserRole(role);
     });
     fetchDrivers();
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("add") === "true") {
+      setModalOpen(true);
+      // Clean query parameter from URL without reloading
+      const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+    }
   }, []);
 
   const handleSubmit = async (e) => {
