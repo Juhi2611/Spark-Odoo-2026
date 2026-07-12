@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════════
+         Expense Log — Form View
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.view_expense_log_form" model="ir.ui.view">
+        <field name="name">transitops.expense.log.form</field>
+        <field name="model">transitops.expense.log</field>
+        <field name="arch" type="xml">
+            <form string="Expense Log">
+                <sheet>
+                    <group>
+                        <group string="Vehicle &amp; Date">
+                            <field name="vehicle_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group string="Expense Details">
+                            <field name="expense_type"/>
+                            <field name="cost"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description"
+                                   placeholder="Describe this expense in detail..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Expense Log — List / Tree View
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.view_expense_log_tree" model="ir.ui.view">
+        <field name="name">transitops.expense.log.tree</field>
+        <field name="model">transitops.expense.log</field>
+        <field name="arch" type="xml">
+            <tree string="Expense Logs">
+                <field name="date"/>
+                <field name="vehicle_id"/>
+                <field name="expense_type"/>
+                <field name="cost" sum="Total Expenses"/>
+                <field name="description" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Expense Log — Search View
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.view_expense_log_search" model="ir.ui.view">
+        <field name="name">transitops.expense.log.search</field>
+        <field name="model">transitops.expense.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Expense Logs">
+                <field name="vehicle_id"/>
+                <field name="expense_type"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Vehicle" name="group_vehicle"
+                            context="{'group_by': 'vehicle_id'}"/>
+                    <filter string="Expense Type" name="group_type"
+                            context="{'group_by': 'expense_type'}"/>
+                    <filter string="Date" name="group_date"
+                            context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Expense Log — Action
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.action_expense_log" model="ir.actions.act_window">
+        <field name="name">Expense Logs</field>
+        <field name="res_model">transitops.expense.log</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="transitops_maintenance.view_expense_log_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Log your first operational expense
+            </p>
+            <p>
+                Track tolls, parking, driver allowances, insurance, and other costs.
+            </p>
+        </field>
+    </record>
+
+</odoo>

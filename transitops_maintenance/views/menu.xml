@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════════
+         Top-Level Menu: TransitOps Maintenance
+         ════════════════════════════════════════════════════════ -->
+    <menuitem id="transitops_maintenance.menu_root"
+              name="TransitOps Maintenance"
+              sequence="40"
+              web_icon="transitops_maintenance,static/description/icon.png"/>
+
+    <!-- ── Sub-menu container ──────────────────────────────── -->
+    <menuitem id="transitops_maintenance.menu_operations"
+              name="Operations"
+              parent="transitops_maintenance.menu_root"
+              sequence="10"/>
+
+    <!-- ── Maintenance Requests ────────────────────────────── -->
+    <menuitem id="transitops_maintenance.menu_maintenance_request"
+              name="Maintenance Requests"
+              parent="transitops_maintenance.menu_operations"
+              action="transitops_maintenance.action_maintenance_request"
+              sequence="10"/>
+
+    <!-- ── Fuel Logs ───────────────────────────────────────── -->
+    <menuitem id="transitops_maintenance.menu_fuel_log"
+              name="Fuel Logs"
+              parent="transitops_maintenance.menu_operations"
+              action="transitops_maintenance.action_fuel_log"
+              sequence="20"/>
+
+    <!-- ── Expense Logs ────────────────────────────────────── -->
+    <menuitem id="transitops_maintenance.menu_expense_log"
+              name="Expense Logs"
+              parent="transitops_maintenance.menu_operations"
+              action="transitops_maintenance.action_expense_log"
+              sequence="30"/>
+
+</odoo>

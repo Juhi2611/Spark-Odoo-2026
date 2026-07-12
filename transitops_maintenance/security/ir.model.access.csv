@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_transitops_maintenance_request_user,transitops.maintenance.request.user,model_transitops_maintenance_request,base.group_user,1,1,1,0
+access_transitops_fuel_log_user,transitops.fuel.log.user,model_transitops_fuel_log,base.group_user,1,1,1,0
+access_transitops_expense_log_user,transitops.expense.log.user,model_transitops_expense_log,base.group_user,1,1,1,0

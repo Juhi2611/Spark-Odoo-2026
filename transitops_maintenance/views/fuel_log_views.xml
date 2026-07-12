@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════════
+         Fuel Log — Form View
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.view_fuel_log_form" model="ir.ui.view">
+        <field name="name">transitops.fuel.log.form</field>
+        <field name="model">transitops.fuel.log</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Log">
+                <sheet>
+                    <group>
+                        <group string="Vehicle &amp; Date">
+                            <field name="vehicle_id"/>
+                            <field name="date"/>
+                            <field name="odometer"/>
+                        </group>
+                        <group string="Fuel Details">
+                            <field name="liters"/>
+                            <field name="price_per_liter"/>
+                            <field name="cost"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Any additional notes about this fill-up..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Fuel Log — List / Tree View
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.view_fuel_log_tree" model="ir.ui.view">
+        <field name="name">transitops.fuel.log.tree</field>
+        <field name="model">transitops.fuel.log</field>
+        <field name="arch" type="xml">
+            <tree string="Fuel Logs">
+                <field name="date"/>
+                <field name="vehicle_id"/>
+                <field name="liters" sum="Total Liters"/>
+                <field name="price_per_liter"/>
+                <field name="cost" sum="Total Cost"/>
+                <field name="odometer" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Fuel Log — Search View
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.view_fuel_log_search" model="ir.ui.view">
+        <field name="name">transitops.fuel.log.search</field>
+        <field name="model">transitops.fuel.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Fuel Logs">
+                <field name="vehicle_id"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Vehicle" name="group_vehicle"
+                            context="{'group_by': 'vehicle_id'}"/>
+                    <filter string="Date" name="group_date"
+                            context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Fuel Log — Action
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.action_fuel_log" model="ir.actions.act_window">
+        <field name="name">Fuel Logs</field>
+        <field name="res_model">transitops.fuel.log</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="transitops_maintenance.view_fuel_log_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Record your first fuel fill-up
+            </p>
+            <p>
+                Track fuel consumption, cost per liter, and odometer readings.
+            </p>
+        </field>
+    </record>
+
+</odoo>

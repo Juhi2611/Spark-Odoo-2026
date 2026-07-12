@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════════
+         Maintenance Request — Form View
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.view_maintenance_request_form" model="ir.ui.view">
+        <field name="name">transitops.maintenance.request.form</field>
+        <field name="model">transitops.maintenance.request</field>
+        <field name="arch" type="xml">
+            <form string="Maintenance Request">
+                <header>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="open,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Details">
+                            <field name="vehicle_id"/>
+                            <field name="maintenance_type"/>
+                            <field name="cost"/>
+                        </group>
+                        <group string="Dates">
+                            <field name="date_opened"/>
+                            <field name="date_closed"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Add notes about this maintenance request..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Maintenance Request — List / Tree View
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.view_maintenance_request_tree" model="ir.ui.view">
+        <field name="name">transitops.maintenance.request.tree</field>
+        <field name="model">transitops.maintenance.request</field>
+        <field name="arch" type="xml">
+            <tree string="Maintenance Requests"
+                  decoration-warning="status == 'open'"
+                  decoration-success="status == 'closed'">
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="maintenance_type"/>
+                <field name="date_opened"/>
+                <field name="date_closed" optional="show"/>
+                <field name="cost" sum="Total Cost"/>
+                <field name="status" widget="badge"
+                       decoration-warning="status == 'open'"
+                       decoration-success="status == 'closed'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Maintenance Request — Search View
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.view_maintenance_request_search" model="ir.ui.view">
+        <field name="name">transitops.maintenance.request.search</field>
+        <field name="model">transitops.maintenance.request</field>
+        <field name="arch" type="xml">
+            <search string="Search Maintenance Requests">
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="maintenance_type"/>
+                <separator/>
+                <filter string="Open" name="filter_open"
+                        domain="[('status', '=', 'open')]"/>
+                <filter string="Closed" name="filter_closed"
+                        domain="[('status', '=', 'closed')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Vehicle" name="group_vehicle"
+                            context="{'group_by': 'vehicle_id'}"/>
+                    <filter string="Type" name="group_type"
+                            context="{'group_by': 'maintenance_type'}"/>
+                    <filter string="Status" name="group_status"
+                            context="{'group_by': 'status'}"/>
+                    <filter string="Date Opened" name="group_date"
+                            context="{'group_by': 'date_opened:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Maintenance Request — Action
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.action_maintenance_request" model="ir.actions.act_window">
+        <field name="name">Maintenance Requests</field>
+        <field name="res_model">transitops.maintenance.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="transitops_maintenance.view_maintenance_request_search"/>
+        <field name="context">{'search_default_filter_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first maintenance request
+            </p>
+            <p>
+                Track vehicle maintenance work orders from open to closed.
+            </p>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════
+         Sequence for auto-numbering MNT-XXXX
+         ════════════════════════════════════════════════════════ -->
+    <record id="transitops_maintenance.seq_maintenance_request" model="ir.sequence">
+        <field name="name">Maintenance Request Sequence</field>
+        <field name="code">transitops.maintenance.request</field>
+        <field name="prefix">MNT-</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>
