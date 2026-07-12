@@ -12,10 +12,13 @@ import Drivers from "./pages/Drivers";
 import Login from "./pages/Login";
 import Trips from "./pages/Trips";
 import SeedDrivers from "./pages/SeedDrivers";
+import ModuleFeature from "./pages/ModuleFeature";
 
 /** Map each role to its default landing page */
 const ROLE_DEFAULT_PAGE = {
+  super_admin: "/dashboard",
   fleet_manager: "/dashboard",
+  dispatcher: "/trips",
   driver: "/trips",
   safety_officer: "/drivers",
   financial_analyst: "/fuel-expense",
@@ -89,6 +92,21 @@ export default function App() {
           <Route path="/maintenance" element={<Maintenance />} />
           <Route path="/fuel-expense" element={<FuelExpense />} />
           <Route path="/reports" element={<Reports />} />
+          {/* Specialized dynamic features */}
+          <Route path="/users" element={<ModuleFeature />} />
+          <Route path="/branches" element={<ModuleFeature />} />
+          <Route path="/settings" element={<ModuleFeature />} />
+          <Route path="/audit-logs" element={<ModuleFeature />} />
+          <Route path="/backup-restore" element={<ModuleFeature />} />
+          <Route path="/cargo" element={<ModuleFeature />} />
+          <Route path="/scheduling" element={<ModuleFeature />} />
+          <Route path="/incident-reports" element={<ModuleFeature />} />
+          <Route path="/documents" element={<ModuleFeature />} />
+          <Route path="/profile" element={<ModuleFeature />} />
+          <Route path="/license-management" element={<ModuleFeature />} />
+          <Route path="/compliance" element={<ModuleFeature />} />
+          <Route path="/inspections" element={<ModuleFeature />} />
+          <Route path="/export" element={<ModuleFeature />} />
           <Route path="*" element={<Navigate to={defaultPage} replace />} />
         </Routes>
       </main>

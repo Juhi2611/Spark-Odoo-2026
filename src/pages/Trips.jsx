@@ -87,6 +87,7 @@ export default function Trips() {
   const [drivers, setDrivers]   = useState([]);
   const [loading, setLoading]   = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   // Complete-trip modal
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
@@ -154,6 +155,14 @@ export default function Trips() {
   }, []);
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      let role = localStorage.getItem("active_role");
+      if (!role && user) {
+        role = user.user_metadata?.role || "fleet_manager";
+      }
+      if (role === "manager" || !role) role = "fleet_manager";
+      setUserRole(role);
+    });
     fetchTrips();
     fetchVehicles();
     fetchDrivers();
@@ -419,13 +428,15 @@ export default function Trips() {
         title="Trip Management"
         subtitle="Create trips, manage lifecycle, and track vehicle & driver assignments"
       >
-        <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          New Trip
-        </button>
+        {(userRole === "fleet_manager" || userRole === "driver") && (
+          <button
+            onClick={() => setModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            New Trip
+          </button>
+        )}
       </PageHeader>
 
       {/* ── Stats row ───────────────────────────────────────────────── */}
@@ -516,57 +527,63 @@ export default function Trips() {
                       {/* Actions */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
-                          {trip.status === "draft" && (
+                          {(userRole === "fleet_manager" || userRole === "driver") ? (
                             <>
-                              <button
-                                title="Dispatch trip"
-                                disabled={!!busy}
-                                onClick={() => handleDispatch(trip)}
-                                className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-default cursor-pointer disabled:opacity-40"
-                              >
-                                {busy === "dispatching" ? <span className="inline-block w-3.5 h-3.5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-                              </button>
-                              <button
-                                title="Cancel trip"
-                                disabled={!!busy}
-                                onClick={() => handleCancel(trip)}
-                                className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-default cursor-pointer disabled:opacity-40"
-                              >
-                                <Ban className="w-3.5 h-3.5" />
-                              </button>
+                              {trip.status === "draft" && (
+                                <>
+                                  <button
+                                    title="Dispatch trip"
+                                    disabled={!!busy}
+                                    onClick={() => handleDispatch(trip)}
+                                    className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-default cursor-pointer disabled:opacity-40"
+                                  >
+                                    {busy === "dispatching" ? <span className="inline-block w-3.5 h-3.5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                                  </button>
+                                  <button
+                                    title="Cancel trip"
+                                    disabled={!!busy}
+                                    onClick={() => handleCancel(trip)}
+                                    className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-default cursor-pointer disabled:opacity-40"
+                                  >
+                                    <Ban className="w-3.5 h-3.5" />
+                                  </button>
+                                </>
+                              )}
+                              {trip.status === "dispatched" && (
+                                <>
+                                  <button
+                                    title="Mark as completed"
+                                    disabled={!!busy}
+                                    onClick={() => openCompleteModal(trip)}
+                                    className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-default cursor-pointer disabled:opacity-40"
+                                  >
+                                    {busy === "completing" ? <span className="inline-block w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" /> : <Flag className="w-3.5 h-3.5" />}
+                                  </button>
+                                  <button
+                                    title="Cancel trip (restores vehicle & driver)"
+                                    disabled={!!busy}
+                                    onClick={() => handleCancel(trip)}
+                                    className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-default cursor-pointer disabled:opacity-40"
+                                  >
+                                    <Ban className="w-3.5 h-3.5" />
+                                  </button>
+                                </>
+                              )}
+                              {trip.status === "cancelled" && (
+                                <button
+                                  title="Reset to Draft"
+                                  disabled={!!busy}
+                                  onClick={() => handleResetDraft(trip)}
+                                  className="p-2 rounded-lg bg-slate-500/10 border border-slate-500/20 text-slate-400 hover:bg-slate-500/20 transition-default cursor-pointer disabled:opacity-40"
+                                >
+                                  <RotateCcw className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              {trip.status === "completed" && (
+                                <span className="text-xs text-slate-500 italic">—</span>
+                              )}
                             </>
-                          )}
-                          {trip.status === "dispatched" && (
-                            <>
-                              <button
-                                title="Mark as completed"
-                                disabled={!!busy}
-                                onClick={() => openCompleteModal(trip)}
-                                className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-default cursor-pointer disabled:opacity-40"
-                              >
-                                {busy === "completing" ? <span className="inline-block w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" /> : <Flag className="w-3.5 h-3.5" />}
-                              </button>
-                              <button
-                                title="Cancel trip (restores vehicle & driver)"
-                                disabled={!!busy}
-                                onClick={() => handleCancel(trip)}
-                                className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-default cursor-pointer disabled:opacity-40"
-                              >
-                                <Ban className="w-3.5 h-3.5" />
-                              </button>
-                            </>
-                          )}
-                          {trip.status === "cancelled" && (
-                            <button
-                              title="Reset to Draft"
-                              disabled={!!busy}
-                              onClick={() => handleResetDraft(trip)}
-                              className="p-2 rounded-lg bg-slate-500/10 border border-slate-500/20 text-slate-400 hover:bg-slate-500/20 transition-default cursor-pointer disabled:opacity-40"
-                            >
-                              <RotateCcw className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                          {trip.status === "completed" && (
+                          ) : (
                             <span className="text-xs text-slate-500 italic">—</span>
                           )}
                         </div>

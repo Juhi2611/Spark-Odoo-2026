@@ -16,6 +16,7 @@ export default function FuelExpense() {
   const [expenseLogs, setExpenseLogs] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState(null);
 
   // Modals state
   const [fuelModalOpen, setFuelModalOpen] = useState(false);
@@ -80,6 +81,14 @@ export default function FuelExpense() {
   };
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      let role = localStorage.getItem("active_role");
+      if (!role && user) {
+        role = user.user_metadata?.role || "fleet_manager";
+      }
+      if (role === "manager" || !role) role = "fleet_manager";
+      setUserRole(role);
+    });
     fetchData();
     fetchVehicles();
   }, []);
@@ -202,22 +211,24 @@ export default function FuelExpense() {
         title="Fuel & Expense"
         subtitle="Consolidated view of fuel consumption and operational expenses"
       >
-        <div className="flex gap-3">
-          <button
-            onClick={() => setFuelModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-350 text-sm font-semibold hover:bg-teal-500/25 transition-default cursor-pointer"
-          >
-            <Fuel className="w-4 h-4" />
-            Add Fuel Log
-          </button>
-          <button
-            onClick={() => setExpenseModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            Add Expense Log
-          </button>
-        </div>
+        {userRole === "fleet_manager" && (
+          <div className="flex gap-3">
+            <button
+              onClick={() => setFuelModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-350 text-sm font-semibold hover:bg-teal-500/25 transition-default cursor-pointer"
+            >
+              <Fuel className="w-4 h-4" />
+              Add Fuel Log
+            </button>
+            <button
+              onClick={() => setExpenseModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              Add Expense Log
+            </button>
+          </div>
+        )}
       </PageHeader>
 
       {/* ── Total cost summary ──────────────────────────── */}

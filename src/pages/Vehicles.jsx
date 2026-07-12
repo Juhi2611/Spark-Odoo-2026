@@ -7,6 +7,7 @@ export default function Vehicles() {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   // Form State
   const [name, setName] = useState("");
@@ -38,6 +39,14 @@ export default function Vehicles() {
   };
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      let role = localStorage.getItem("active_role");
+      if (!role && user) {
+        role = user.user_metadata?.role || "fleet_manager";
+      }
+      if (role === "manager" || !role) role = "fleet_manager";
+      setUserRole(role);
+    });
     fetchVehicles();
   }, []);
 
@@ -106,13 +115,15 @@ export default function Vehicles() {
         title="Vehicles"
         subtitle="Manage fleet vehicles, monitor status, and add new assets to the database"
       >
-        <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          Add Vehicle
-        </button>
+        {userRole === "fleet_manager" && (
+          <button
+            onClick={() => setModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Add Vehicle
+          </button>
+        )}
       </PageHeader>
 
       {/* ── Grid / Table of Vehicles ─────────────────────── */}

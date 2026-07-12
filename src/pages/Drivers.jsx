@@ -19,6 +19,7 @@ export default function Drivers() {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   // Form state
   const [name, setName] = useState("");
@@ -48,6 +49,14 @@ export default function Drivers() {
   };
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      let role = localStorage.getItem("active_role");
+      if (!role && user) {
+        role = user.user_metadata?.role || "fleet_manager";
+      }
+      if (role === "manager" || !role) role = "fleet_manager";
+      setUserRole(role);
+    });
     fetchDrivers();
   }, []);
 
@@ -116,13 +125,15 @@ export default function Drivers() {
         title="Drivers"
         subtitle="Manage driver profiles, licenses, safety scores, and current assignments"
       >
-        <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          Add Driver
-        </button>
+        {(userRole === "fleet_manager" || userRole === "safety_officer") && (
+          <button
+            onClick={() => setModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Add Driver
+          </button>
+        )}
       </PageHeader>
 
       {/* ── Table of Drivers ─────────────────────────────── */}

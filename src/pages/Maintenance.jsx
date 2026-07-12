@@ -8,6 +8,7 @@ export default function Maintenance() {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   // Form State
   const [vehicleId, setVehicleId] = useState("");
@@ -52,7 +53,28 @@ export default function Maintenance() {
     }
   };
 
+  const handleResolve = async (id) => {
+    try {
+      const { error } = await supabase
+        .from("maintenance_logs")
+        .update({ status: "resolved", resolved_at: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw error;
+      fetchRecords();
+    } catch (err) {
+      alert("Failed to resolve maintenance log: " + err.message);
+    }
+  };
+
   useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      let role = localStorage.getItem("active_role");
+      if (!role && user) {
+        role = user.user_metadata?.role || "fleet_manager";
+      }
+      if (role === "manager" || !role) role = "fleet_manager";
+      setUserRole(role);
+    });
     fetchRecords();
     fetchVehicles();
   }, []);
@@ -116,13 +138,15 @@ export default function Maintenance() {
         title="Maintenance"
         subtitle="Track and manage vehicle maintenance schedules and resolutions"
       >
-        <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          Add Maintenance Record
-        </button>
+        {userRole === "fleet_manager" && (
+          <button
+            onClick={() => setModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Add Maintenance Record
+          </button>
+        )}
       </PageHeader>
 
       {/* ── Table / Content ───────────────────────────────── */}
@@ -143,7 +167,7 @@ export default function Maintenance() {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {["Vehicle", "Registration No.", "Issue Description", "Cost (₹)", "Date Opened", "Status"].map((col) => (
+                  {["Vehicle", "Registration No.", "Issue Description", "Cost (₹)", "Date Opened", "Status", "Actions"].map((col) => (
                     <th
                       key={col}
                       className="px-6 py-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wider"
@@ -192,6 +216,18 @@ export default function Maintenance() {
                           </>
                         )}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {r.status === "pending" && userRole === "fleet_manager" ? (
+                        <button
+                          onClick={() => handleResolve(r.id)}
+                          className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-default cursor-pointer"
+                        >
+                          Resolve
+                        </button>
+                      ) : (
+                        <span className="text-xs text-slate-500 italic">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
