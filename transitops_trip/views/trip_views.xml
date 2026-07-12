@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         FORM VIEW
+         ══════════════════════════════════════════════════════════════════ -->
+    <record id="transitops_trip.view_trip_form" model="ir.ui.view">
+        <field name="name">transitops.trip.form</field>
+        <field name="model">transitops.trip</field>
+        <field name="arch" type="xml">
+            <form string="Trip">
+                <!-- Status-bar widget at the top -->
+                <header>
+                    <button name="action_dispatch"
+                            string="Dispatch"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="status != 'draft'"/>
+                    <button name="action_complete"
+                            string="Mark as Completed"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="status != 'dispatched'"/>
+                    <button name="action_cancel"
+                            string="Cancel Trip"
+                            type="object"
+                            invisible="status in ('completed', 'cancelled')"
+                            confirm="Are you sure you want to cancel this trip? Vehicle and driver will be restored to Available."/>
+                    <button name="action_reset_draft"
+                            string="Reset to Draft"
+                            type="object"
+                            invisible="status != 'cancelled'"/>
+                    <field name="status"
+                           widget="statusbar"
+                           statusbar_visible="draft,dispatched,completed"/>
+                </header>
+
+                <sheet>
+                    <!-- Reference number banner -->
+                    <div class="oe_title">
+                        <label for="name" string="Trip Reference"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <!-- Left column: Route & Cargo -->
+                        <group string="Route &amp; Cargo">
+                            <field name="source"
+                                   placeholder="e.g. Bangalore Depot"/>
+                            <field name="destination"
+                                   placeholder="e.g. Mysore Hub"/>
+                            <field name="planned_distance"/>
+                            <field name="cargo_weight"/>
+                            <field name="vehicle_max_load"
+                                   string="Vehicle Capacity (kg)"
+                                   invisible="not vehicle_id"/>
+                        </group>
+
+                        <!-- Right column: Assignment -->
+                        <group string="Assignment">
+                            <field name="vehicle_id"
+                                   options="{'no_create': True}"
+                                   domain="[('status', 'not in', ['on_trip', 'in_shop', 'retired'])]"/>
+                            <field name="driver_id"
+                                   options="{'no_create': True}"
+                                   domain="[('status', 'not in', ['on_trip', 'suspended'])]"/>
+                            <field name="departure_date"/>
+                            <field name="arrival_date"/>
+                        </group>
+                    </group>
+
+                    <!-- Completion section (visible only once dispatched/completed) -->
+                    <group string="Completion Details"
+                           invisible="status not in ('dispatched', 'completed')">
+                        <field name="final_odometer"/>
+                        <field name="fuel_consumed"/>
+                    </group>
+
+                    <!-- Audit trail -->
+                    <group string="Audit">
+                        <field name="created_at" readonly="1"/>
+                        <field name="dispatched_at" readonly="1"
+                               invisible="not dispatched_at"/>
+                        <field name="completed_at" readonly="1"
+                               invisible="not completed_at"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes"
+                                   placeholder="Additional notes about this trip…"/>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter / history (requires mail mixin — optional; safe to keep) -->
+                <!-- <div class="oe_chatter"> -->
+                <!--     <field name="message_follower_ids"/> -->
+                <!--     <field name="message_ids"/> -->
+                <!-- </div> -->
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         LIST / TREE VIEW
+         ══════════════════════════════════════════════════════════════════ -->
+    <record id="transitops_trip.view_trip_list" model="ir.ui.view">
+        <field name="name">transitops.trip.list</field>
+        <field name="model">transitops.trip</field>
+        <field name="arch" type="xml">
+            <list string="Trips"
+                  decoration-info="status == 'draft'"
+                  decoration-warning="status == 'dispatched'"
+                  decoration-success="status == 'completed'"
+                  decoration-danger="status == 'cancelled'">
+                <field name="name" string="Reference"/>
+                <field name="source" string="Origin"/>
+                <field name="destination"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="cargo_weight" string="Cargo (kg)"/>
+                <field name="planned_distance" string="Distance (km)"/>
+                <field name="departure_date" string="Departure"/>
+                <field name="status" widget="badge"
+                       decoration-info="status == 'draft'"
+                       decoration-warning="status == 'dispatched'"
+                       decoration-success="status == 'completed'"
+                       decoration-danger="status == 'cancelled'"/>
+                <field name="dispatched_at" optional="hide"/>
+                <field name="completed_at" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SEARCH VIEW
+         ══════════════════════════════════════════════════════════════════ -->
+    <record id="transitops_trip.view_trip_search" model="ir.ui.view">
+        <field name="name">transitops.trip.search</field>
+        <field name="model">transitops.trip</field>
+        <field name="arch" type="xml">
+            <search string="Search Trips">
+                <!-- Full-text search fields -->
+                <field name="name" string="Reference"/>
+                <field name="source" string="Origin"/>
+                <field name="destination"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+
+                <!-- Quick-filter buttons -->
+                <filter string="Draft"
+                        name="filter_draft"
+                        domain="[('status', '=', 'draft')]"/>
+                <filter string="Dispatched"
+                        name="filter_dispatched"
+                        domain="[('status', '=', 'dispatched')]"/>
+                <filter string="Completed"
+                        name="filter_completed"
+                        domain="[('status', '=', 'completed')]"/>
+                <filter string="Cancelled"
+                        name="filter_cancelled"
+                        domain="[('status', '=', 'cancelled')]"/>
+
+                <separator/>
+
+                <filter string="Today's Departures"
+                        name="filter_today"
+                        domain="[('departure_date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
+                                  ('departure_date', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+
+                <!-- Group-by options -->
+                <group expand="0" string="Group By">
+                    <filter string="Status"
+                            name="group_status"
+                            context="{'group_by': 'status'}"/>
+                    <filter string="Vehicle"
+                            name="group_vehicle"
+                            context="{'group_by': 'vehicle_id'}"/>
+                    <filter string="Driver"
+                            name="group_driver"
+                            context="{'group_by': 'driver_id'}"/>
+                    <filter string="Departure Date"
+                            name="group_departure"
+                            context="{'group_by': 'departure_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         WINDOW ACTION
+         ══════════════════════════════════════════════════════════════════ -->
+    <record id="transitops_trip.action_trip_list" model="ir.actions.act_window">
+        <field name="name">Trips</field>
+        <field name="res_model">transitops.trip</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="transitops_trip.view_trip_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No trips yet — create your first trip!
+            </p>
+            <p>
+                Use <b>New</b> to create a trip, then <b>Dispatch</b> it once
+                a vehicle and driver are ready.
+            </p>
+        </field>
+    </record>
+
+</odoo>

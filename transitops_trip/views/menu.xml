@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         MENU STRUCTURE
+         ══════════════════════════════════════════════════════════════════
+
+         Top-level menu: "TransitOps Trips"
+             └─ Trip Management
+                     └─ Trips
+    -->
+
+    <!-- Top-level menu item -->
+    <menuitem id="transitops_trip.menu_root"
+              name="TransitOps Trips"
+              sequence="20"
+              web_icon="transitops_trip,static/description/icon.png"/>
+
+    <!-- Section header -->
+    <menuitem id="transitops_trip.menu_trip_management"
+              name="Trip Management"
+              parent="transitops_trip.menu_root"
+              sequence="10"/>
+
+    <!-- Leaf: opens the trip list action -->
+    <menuitem id="transitops_trip.menu_trip_list"
+              name="Trips"
+              parent="transitops_trip.menu_trip_management"
+              action="transitops_trip.action_trip_list"
+              sequence="10"/>
+
+</odoo>

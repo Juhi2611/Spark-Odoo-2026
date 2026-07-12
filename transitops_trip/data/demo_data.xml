@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!--
+            Demo trips for transitops_trip module.
+
+            Vehicle refs MUST match the XML IDs Juhi creates in
+            transitops_core/data/demo_data.xml:
+              - transitops_core.vehicle_bus_1042  (BUS-1042)
+              - transitops_core.vehicle_van_0217  (VAN-0217)
+              - transitops_core.vehicle_trk_0883  (TRK-0883)
+
+            Driver refs (coordinate with Juhi for exact XML IDs):
+              - transitops_core.driver_alex   ← the canonical "Alex" from the demo script
+              - transitops_core.driver_priya
+              - transitops_core.driver_rajan
+
+            NOTE: driver_id refs below use the expected IDs.  If Juhi uses
+            different IDs update these refs before installing.
+
+            The first trip (TRP-DEMO-001) re-creates the official hackathon
+            demo scenario:
+              Van-05 (capacity 500 kg) + Driver Alex + 450 kg cargo
+              → dispatched, then completed; both flip back to Available.
+            We use VAN-0217 as "Van-05" for demo purposes.
+        -->
+
+        <!-- ── Trip 1: The canonical hackathon demo scenario ─────────────
+             VAN-0217 (max load 500 kg) + Alex + 450 kg cargo
+             Status: completed (shows the full lifecycle in demo video)
+        -->
+        <record id="transitops_trip.demo_trip_001" model="transitops.trip">
+            <field name="name">TRP-0001</field>
+            <field name="vehicle_id" ref="transitops_core.vehicle_van_0217"/>
+            <field name="driver_id" ref="transitops_core.driver_alex"/>
+            <field name="source">Bangalore Depot</field>
+            <field name="destination">Mysore Hub</field>
+            <field name="planned_distance">140.0</field>
+            <field name="cargo_weight">450.0</field>
+            <field name="departure_date">2026-07-12 09:00:00</field>
+            <field name="arrival_date">2026-07-12 12:00:00</field>
+            <field name="status">completed</field>
+            <field name="dispatched_at">2026-07-12 08:55:00</field>
+            <field name="completed_at">2026-07-12 12:10:00</field>
+            <field name="final_odometer">23240.0</field>
+            <field name="fuel_consumed">18.5</field>
+            <field name="notes">
+                Canonical hackathon demo trip — VAN-0217 (500 kg capacity),
+                Driver Alex, 450 kg cargo. Dispatched and completed successfully.
+            </field>
+        </record>
+
+        <!-- ── Trip 2: BUS-1042 currently dispatched (on the road) ────── -->
+        <record id="transitops_trip.demo_trip_002" model="transitops.trip">
+            <field name="name">TRP-0002</field>
+            <field name="vehicle_id" ref="transitops_core.vehicle_bus_1042"/>
+            <field name="driver_id" ref="transitops_core.driver_priya"/>
+            <field name="source">Bangalore KSR Station</field>
+            <field name="destination">Hosur Industrial Area</field>
+            <field name="planned_distance">45.0</field>
+            <field name="cargo_weight">320.0</field>
+            <field name="departure_date">2026-07-12 07:30:00</field>
+            <field name="arrival_date">2026-07-12 09:00:00</field>
+            <field name="status">dispatched</field>
+            <field name="dispatched_at">2026-07-12 07:25:00</field>
+            <field name="notes">Worker shuttle — morning shift drop-off to Hosur.</field>
+        </record>
+
+        <!-- ── Trip 3: Draft trip waiting to be dispatched ───────────── -->
+        <record id="transitops_trip.demo_trip_003" model="transitops.trip">
+            <field name="name">TRP-0003</field>
+            <field name="vehicle_id" ref="transitops_core.vehicle_van_0217"/>
+            <field name="driver_id" ref="transitops_core.driver_rajan"/>
+            <field name="source">Whitefield Warehouse</field>
+            <field name="destination">Electronic City Phase 2</field>
+            <field name="planned_distance">28.0</field>
+            <field name="cargo_weight">150.0</field>
+            <field name="departure_date">2026-07-12 14:00:00</field>
+            <field name="arrival_date">2026-07-12 15:30:00</field>
+            <field name="status">draft</field>
+            <field name="notes">Afternoon delivery run — electronics components.</field>
+        </record>
+
+        <!-- ── Trip 4: Long-haul truck trip — completed ───────────────── -->
+        <record id="transitops_trip.demo_trip_004" model="transitops.trip">
+            <field name="name">TRP-0004</field>
+            <field name="vehicle_id" ref="transitops_core.vehicle_trk_0883"/>
+            <field name="driver_id" ref="transitops_core.driver_alex"/>
+            <field name="source">Bangalore Logistics Park</field>
+            <field name="destination">Hyderabad Distribution Centre</field>
+            <field name="planned_distance">570.0</field>
+            <field name="cargo_weight">800.0</field>
+            <field name="departure_date">2026-07-10 06:00:00</field>
+            <field name="arrival_date">2026-07-11 10:00:00</field>
+            <field name="status">completed</field>
+            <field name="dispatched_at">2026-07-10 05:50:00</field>
+            <field name="completed_at">2026-07-11 09:45:00</field>
+            <field name="final_odometer">90320.0</field>
+            <field name="fuel_consumed">195.0</field>
+            <field name="notes">BLR-HYD long-haul shipment — heavy cargo, two-day trip.</field>
+        </record>
+
+        <!-- ── Trip 5: Cancelled trip (shows cancellation flow) ──────── -->
+        <record id="transitops_trip.demo_trip_005" model="transitops.trip">
+            <field name="name">TRP-0005</field>
+            <field name="vehicle_id" ref="transitops_core.vehicle_bus_1042"/>
+            <field name="driver_id" ref="transitops_core.driver_priya"/>
+            <field name="source">Yeshwanthpur Depot</field>
+            <field name="destination">Tumkur Road Checkpoint</field>
+            <field name="planned_distance">35.0</field>
+            <field name="cargo_weight">200.0</field>
+            <field name="departure_date">2026-07-11 10:00:00</field>
+            <field name="arrival_date">2026-07-11 11:30:00</field>
+            <field name="status">cancelled</field>
+            <field name="notes">Cancelled — route blocked due to road maintenance.</field>
+        </record>
+
+    </data>
+</odoo>
