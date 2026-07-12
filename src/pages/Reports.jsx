@@ -12,7 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line, Bar, Doughnut } from "react-chartjs-2";
-import { Download, Fuel, Gauge, TrendingUp, IndianRupee, AlertCircle } from "lucide-react";
+import { Download, Fuel, Gauge, TrendingUp, IndianRupee, AlertCircle, Printer } from "lucide-react";
 import { supabase } from "../supabaseClient";
 import PageHeader from "../components/PageHeader";
 
@@ -411,19 +411,33 @@ export default function Reports() {
     URL.revokeObjectURL(url);
   }
 
+  // ── PDF Exporter ──
+  function exportPDF() {
+    window.print();
+  }
+
   return (
     <section>
       <PageHeader
         title="Reports & Analytics"
         subtitle="Fleet performance metrics, fuel efficiency, and cost analysis"
       >
-        <button
-          onClick={exportCSV}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer"
-        >
-          <Download className="w-4 h-4" />
-          Export CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={exportCSV}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-sm font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:scale-[1.03] transition-default cursor-pointer no-print"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+          <button
+            onClick={exportPDF}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-slate-200 text-sm font-semibold hover:bg-white/[0.06] hover:scale-[1.03] transition-default cursor-pointer no-print"
+          >
+            <Printer className="w-4 h-4" />
+            Export PDF
+          </button>
+        </div>
       </PageHeader>
 
       {loading ? (

@@ -35,7 +35,38 @@ import {
   Package,
   User,
 } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar, Doughnut } from "react-chartjs-2";
 import { supabase } from "../supabaseClient";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend
+);
+
+const GRID_COLOR = "rgba(148,163,184,0.08)";
+const TICK_COLOR = "#64748b";
+
+const darkScales = {
+  x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { family: "Inter", size: 11 } }, border: { color: "transparent" } },
+  y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { family: "Inter", size: 11 } }, border: { color: "transparent" } },
+};
+
+const darkLegend = {
+  labels: { color: "#cbd5e1", font: { family: "Inter", size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 10 },
+};
 import PageHeader from "../components/PageHeader";
 
 // ── Status helpers ───────────────────────────────────────────────────────────
@@ -470,8 +501,82 @@ export default function Trips() {
           <p className="text-sm text-slate-500 mt-1">Create your first trip using the button above.</p>
         </div>
       ) : (
-        <div className="glass overflow-hidden animate-fade-in" style={{ animationDelay: "100ms" }}>
-          <div className="overflow-x-auto">
+        <div className="flex flex-col gap-8 animate-fade-in" style={{ animationDelay: "100ms" }}>
+          
+          {/* ── Charts Section ───────────── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Trip Status</h4>
+              <div className="h-48 relative">
+                <Doughnut
+                  data={{
+                    labels: ["Draft", "Dispatched", "Completed", "Cancelled"],
+                    datasets: [{
+                      data: [stats.draft, stats.dispatched, stats.completed, stats.cancelled],
+                      backgroundColor: ["rgba(100,116,139,0.5)", "rgba(245,158,11,0.85)", "rgba(16,185,129,0.85)", "rgba(244,63,94,0.85)"],
+                      borderColor: ["#64748b", "#f59e0b", "#10b981", "#f43f5e"],
+                      borderWidth: 2,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { ...darkLegend, position: 'right' } } }}
+                />
+              </div>
+            </div>
+
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Distance Distribution</h4>
+              <div className="h-48">
+                <Bar
+                  data={{
+                    labels: ["<100km", "100-500km", "500-1000km", ">1000km"],
+                    datasets: [{
+                      label: "Trips",
+                      data: [
+                        trips.filter(t => t.planned_distance < 100).length,
+                        trips.filter(t => t.planned_distance >= 100 && t.planned_distance <= 500).length,
+                        trips.filter(t => t.planned_distance > 500 && t.planned_distance <= 1000).length,
+                        trips.filter(t => t.planned_distance > 1000).length,
+                      ],
+                      backgroundColor: "rgba(45,212,191,0.7)",
+                      borderColor: "#2dd4bf",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, scales: darkScales, plugins: { legend: { display: false } } }}
+                />
+              </div>
+            </div>
+
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Cargo Utilization</h4>
+              <div className="h-48">
+                <Bar
+                  data={{
+                    labels: ["0-25%", "26-50%", "51-75%", "76-100%", "Overload"],
+                    datasets: [{
+                      label: "Trips",
+                      data: [
+                        trips.filter(t => { const cap = t.vehicles?.max_load_capacity || 1; const ratio = (t.cargo_weight / cap) * 100; return ratio <= 25; }).length,
+                        trips.filter(t => { const cap = t.vehicles?.max_load_capacity || 1; const ratio = (t.cargo_weight / cap) * 100; return ratio > 25 && ratio <= 50; }).length,
+                        trips.filter(t => { const cap = t.vehicles?.max_load_capacity || 1; const ratio = (t.cargo_weight / cap) * 100; return ratio > 50 && ratio <= 75; }).length,
+                        trips.filter(t => { const cap = t.vehicles?.max_load_capacity || 1; const ratio = (t.cargo_weight / cap) * 100; return ratio > 75 && ratio <= 100; }).length,
+                        trips.filter(t => { const cap = t.vehicles?.max_load_capacity || 1; const ratio = (t.cargo_weight / cap) * 100; return ratio > 100; }).length,
+                      ],
+                      backgroundColor: "rgba(168,85,247,0.7)",
+                      borderColor: "#a855f7",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, scales: darkScales, plugins: { legend: { display: false } } }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="glass overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-white/[0.06]">
@@ -594,6 +699,7 @@ export default function Trips() {
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       )}
 

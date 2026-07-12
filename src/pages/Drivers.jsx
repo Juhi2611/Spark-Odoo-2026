@@ -12,7 +12,38 @@
 
 import { useEffect, useState } from "react";
 import { Plus, UserCheck, AlertCircle, X, Phone, FileSignature, ShieldCheck } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar, Doughnut } from "react-chartjs-2";
 import { supabase } from "../supabaseClient";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend
+);
+
+const GRID_COLOR = "rgba(148,163,184,0.08)";
+const TICK_COLOR = "#64748b";
+
+const darkScales = {
+  x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { family: "Inter", size: 11 } }, border: { color: "transparent" } },
+  y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { family: "Inter", size: 11 } }, border: { color: "transparent" } },
+};
+
+const darkLegend = {
+  labels: { color: "#cbd5e1", font: { family: "Inter", size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 10 },
+};
 import PageHeader from "../components/PageHeader";
 
 export default function Drivers() {
@@ -151,8 +182,84 @@ export default function Drivers() {
           </p>
         </div>
       ) : (
-        <div className="glass overflow-hidden animate-fade-in" style={{ animationDelay: "100ms" }}>
-          <div className="overflow-x-auto">
+        <div className="flex flex-col gap-8 animate-fade-in" style={{ animationDelay: "100ms" }}>
+          
+          {/* ── Charts Section ───────────── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Status Distribution</h4>
+              <div className="h-48 relative">
+                <Doughnut
+                  data={{
+                    labels: ["Available", "On Trip", "Off Duty", "Suspended"],
+                    datasets: [{
+                      data: [
+                        drivers.filter(d => d.status === "available").length,
+                        drivers.filter(d => d.status === "on_trip" || d.status === "active").length,
+                        drivers.filter(d => d.status === "off_duty").length,
+                        drivers.filter(d => d.status === "suspended").length,
+                      ],
+                      backgroundColor: ["rgba(45,212,191,0.85)", "rgba(56,189,248,0.85)", "rgba(100,116,139,0.5)", "rgba(244,63,94,0.85)"],
+                      borderColor: ["#2dd4bf", "#38bdf8", "#64748b", "#f43f5e"],
+                      borderWidth: 2,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { ...darkLegend, position: 'right' } } }}
+                />
+              </div>
+            </div>
+
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Safety Score Breakdown</h4>
+              <div className="h-48">
+                <Bar
+                  data={{
+                    labels: ["90-100", "80-89", "70-79", "<70"],
+                    datasets: [{
+                      label: "Drivers",
+                      data: [
+                        drivers.filter(d => (d.safety_score ?? 100) >= 90).length,
+                        drivers.filter(d => (d.safety_score ?? 100) >= 80 && (d.safety_score ?? 100) < 90).length,
+                        drivers.filter(d => (d.safety_score ?? 100) >= 70 && (d.safety_score ?? 100) < 80).length,
+                        drivers.filter(d => (d.safety_score ?? 100) < 70).length,
+                      ],
+                      backgroundColor: "rgba(129,140,248,0.7)",
+                      borderColor: "#818cf8",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, scales: darkScales, plugins: { legend: { display: false } } }}
+                />
+              </div>
+            </div>
+
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">License Categories</h4>
+              <div className="h-48 relative">
+                <Doughnut
+                  data={{
+                    labels: ["LMV", "HMV", "HGMV", "TRANS"],
+                    datasets: [{
+                      data: [
+                        drivers.filter(d => d.license_category === "LMV").length,
+                        drivers.filter(d => d.license_category === "HMV").length,
+                        drivers.filter(d => d.license_category === "HGMV").length,
+                        drivers.filter(d => d.license_category === "TRANS").length,
+                      ],
+                      backgroundColor: ["rgba(45,212,191,0.85)", "rgba(251,191,36,0.85)", "rgba(56,189,248,0.85)", "rgba(129,140,248,0.85)"],
+                      borderColor: ["#2dd4bf", "#fbbf24", "#38bdf8", "#818cf8"],
+                      borderWidth: 2,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { ...darkLegend, position: 'right' } } }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="glass overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-white/[0.06]">
@@ -224,6 +331,7 @@ export default function Drivers() {
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       )}
 

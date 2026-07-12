@@ -1,6 +1,43 @@
 import { useEffect, useState } from "react";
 import { Plus, Wrench, Clock, CheckCircle2, X, AlertCircle } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
+import { Bar, Doughnut, Line } from "react-chartjs-2";
 import { supabase } from "../supabaseClient";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+const GRID_COLOR = "rgba(148,163,184,0.08)";
+const TICK_COLOR = "#64748b";
+
+const darkScales = {
+  x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { family: "Inter", size: 11 } }, border: { color: "transparent" } },
+  y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { family: "Inter", size: 11 } }, border: { color: "transparent" } },
+};
+
+const darkLegend = {
+  labels: { color: "#cbd5e1", font: { family: "Inter", size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 10 },
+};
 import PageHeader from "../components/PageHeader";
 
 export default function Maintenance() {
@@ -162,8 +199,80 @@ export default function Maintenance() {
           <p className="text-sm text-slate-500 mt-1">Create one to start tracking vehicle issues.</p>
         </div>
       ) : (
-        <div className="glass overflow-hidden animate-fade-in" style={{ animationDelay: "100ms" }}>
-          <div className="overflow-x-auto">
+        <div className="flex flex-col gap-8 animate-fade-in" style={{ animationDelay: "100ms" }}>
+          
+          {/* ── Charts Section ───────────── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Maintenance Status</h4>
+              <div className="h-48 relative">
+                <Doughnut
+                  data={{
+                    labels: ["Pending", "Resolved"],
+                    datasets: [{
+                      data: [
+                        records.filter(r => r.status === "pending").length,
+                        records.filter(r => r.status === "resolved").length,
+                      ],
+                      backgroundColor: ["rgba(251,191,36,0.85)", "rgba(16,185,129,0.85)"],
+                      borderColor: ["#fbbf24", "#10b981"],
+                      borderWidth: 2,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { ...darkLegend, position: 'right' } } }}
+                />
+              </div>
+            </div>
+
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Highest Cost Vehicles</h4>
+              <div className="h-48">
+                <Bar
+                  data={{
+                    labels: [...new Set(records.map(r => r.vehicles?.name || "Unknown"))].slice(0, 5),
+                    datasets: [{
+                      label: "Total Cost (₹)",
+                      data: [...new Set(records.map(r => r.vehicles?.name || "Unknown"))].slice(0, 5).map(vName => 
+                        records.filter(r => (r.vehicles?.name || "Unknown") === vName).reduce((sum, r) => sum + (r.cost || 0), 0)
+                      ),
+                      backgroundColor: "rgba(244,63,94,0.7)",
+                      borderColor: "#f43f5e",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, scales: darkScales, plugins: { legend: { display: false } } }}
+                />
+              </div>
+            </div>
+
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Monthly Cost Trend</h4>
+              <div className="h-48">
+                <Line
+                  data={{
+                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    datasets: [{
+                      label: "Cost (₹)",
+                      data: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((_, i) => 
+                        records.filter(r => { const d = new Date(r.created_at); return d.getFullYear() === new Date().getFullYear() && d.getMonth() === i; })
+                        .reduce((sum, r) => sum + (r.cost || 0), 0)
+                      ),
+                      borderColor: "#2dd4bf",
+                      backgroundColor: "rgba(45,212,191,0.1)",
+                      fill: true,
+                      tension: 0.4,
+                      pointBackgroundColor: "#2dd4bf",
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, scales: darkScales, plugins: { legend: { display: false } } }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="glass overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-white/[0.06]">
@@ -234,6 +343,7 @@ export default function Maintenance() {
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       )}
 

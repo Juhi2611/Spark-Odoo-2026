@@ -1,6 +1,37 @@
 import { useEffect, useState } from "react";
 import { Plus, Truck, CheckCircle2, AlertCircle, X, MapPin, DollarSign, Activity } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar, Doughnut } from "react-chartjs-2";
 import { supabase } from "../supabaseClient";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend
+);
+
+const GRID_COLOR = "rgba(148,163,184,0.08)";
+const TICK_COLOR = "#64748b";
+
+const darkScales = {
+  x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { family: "Inter", size: 11 } }, border: { color: "transparent" } },
+  y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { family: "Inter", size: 11 } }, border: { color: "transparent" } },
+};
+
+const darkLegend = {
+  labels: { color: "#cbd5e1", font: { family: "Inter", size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 10 },
+};
 import PageHeader from "../components/PageHeader";
 
 export default function Vehicles() {
@@ -139,8 +170,92 @@ export default function Vehicles() {
           <p className="text-sm text-slate-500 mt-1">Register a vehicle to start tracking maintenance and trips.</p>
         </div>
       ) : (
-        <div className="glass overflow-hidden animate-fade-in" style={{ animationDelay: "100ms" }}>
-          <div className="overflow-x-auto">
+        <div className="flex flex-col gap-8 animate-fade-in" style={{ animationDelay: "100ms" }}>
+          
+          {/* ── Charts Section ───────────── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Status Distribution</h4>
+              <div className="h-48 relative">
+                <Doughnut
+                  data={{
+                    labels: ["Available", "On Trip", "In Maintenance", "Retired"],
+                    datasets: [{
+                      data: [
+                        vehicles.filter(v => v.status === "available").length,
+                        vehicles.filter(v => v.status === "on_trip" || v.status === "active").length,
+                        vehicles.filter(v => v.status === "in_maintenance" || v.status === "in_shop").length,
+                        vehicles.filter(v => v.status === "retired").length,
+                      ],
+                      backgroundColor: ["rgba(45,212,191,0.85)", "rgba(56,189,248,0.85)", "rgba(251,191,36,0.85)", "rgba(100,116,139,0.5)"],
+                      borderColor: ["#2dd4bf", "#38bdf8", "#fbbf24", "#64748b"],
+                      borderWidth: 2,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { ...darkLegend, position: 'right' } } }}
+                />
+              </div>
+            </div>
+
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Vehicle Type Breakdown</h4>
+              <div className="h-48">
+                <Bar
+                  data={{
+                    labels: ["Bus", "Van", "Truck", "Sedan"],
+                    datasets: [{
+                      label: "Asset Count",
+                      data: [
+                        vehicles.filter(v => v.type === "bus").length,
+                        vehicles.filter(v => v.type === "van").length,
+                        vehicles.filter(v => v.type === "truck").length,
+                        vehicles.filter(v => v.type === "sedan").length,
+                      ],
+                      backgroundColor: "rgba(129,140,248,0.7)",
+                      borderColor: "#818cf8",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                    }]
+                  }}
+                  options={{ responsive: true, maintainAspectRatio: false, scales: darkScales, plugins: { legend: { display: false } } }}
+                />
+              </div>
+            </div>
+
+            <div className="glass p-5 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-slate-200">Region Distribution</h4>
+              <div className="h-48">
+                <Bar
+                  data={{
+                    labels: ["North", "South", "East", "West"],
+                    datasets: [{
+                      label: "Vehicles",
+                      data: [
+                        vehicles.filter(v => v.region === "north").length,
+                        vehicles.filter(v => v.region === "south").length,
+                        vehicles.filter(v => v.region === "east").length,
+                        vehicles.filter(v => v.region === "west").length,
+                      ],
+                      backgroundColor: "rgba(45,212,191,0.7)",
+                      borderColor: "#2dd4bf",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                    }]
+                  }}
+                  options={{
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: darkScales,
+                    plugins: { legend: { display: false } }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="glass overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-white/[0.06]">
@@ -189,6 +304,7 @@ export default function Vehicles() {
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       )}
 
