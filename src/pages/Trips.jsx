@@ -678,7 +678,7 @@ export default function Trips() {
 
               {/* Driver */}
               <div className="flex flex-col gap-1.5">
-                <Label>Driver * (available, valid license only)</Label>
+                <Label>Driver *</Label>
                 <select
                   required
                   value={form.driver_id}
@@ -686,14 +686,20 @@ export default function Trips() {
                   className={selectCls}
                 >
                   <option value="">— Select driver —</option>
-                  {availableDrivers.length === 0 ? (
-                    <option disabled>No available drivers right now</option>
+                  {drivers.length === 0 ? (
+                    <option disabled>No drivers found in database</option>
                   ) : (
-                    availableDrivers.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name} ({d.license_number})
-                      </option>
-                    ))
+                    drivers.map((d) => {
+                      const isOnTrip = d.status === "on_trip";
+                      const isSuspended = d.status === "suspended";
+                      const isExpired = d.license_expiry_date && d.license_expiry_date < today;
+                      const tag = isOnTrip ? " [On Trip]" : isSuspended ? " [Suspended]" : isExpired ? " [License Expired]" : "";
+                      return (
+                        <option key={d.id} value={d.id}>
+                          {d.name} ({d.license_number}){tag}
+                        </option>
+                      );
+                    })
                   )}
                 </select>
               </div>

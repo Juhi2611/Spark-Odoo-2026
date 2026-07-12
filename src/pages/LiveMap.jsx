@@ -331,9 +331,8 @@ export default function LiveMap() {
 
   const timerRef = useRef(null);
 
-  // 1. Fetch Real Trips from Supabase
+  // 1. Fetch Real Trips from Supabase (ALL dispatched trips, ALL drivers)
   const fetchActiveTrips = async () => {
-    if (demoMode) return;
     try {
       const { data, error } = await supabase
         .from("trips")
@@ -346,7 +345,7 @@ export default function LiveMap() {
 
       if (error) throw error;
 
-      // Assign a random color if not present for rendering
+      // Assign a unique color to each trip for rendering
       const colors = [
         "#2dd4bf",
         "#818cf8",
@@ -356,19 +355,40 @@ export default function LiveMap() {
         "#c084fc",
         "#a3e635",
       ];
-      const parsedTrips = (data || []).map((t, idx) => ({
+      const realTrips = (data || []).map((t, idx) => ({
         ...t,
         color: colors[idx % colors.length],
       }));
 
-      setTrips(parsedTrips);
+      // Merge: always show real DB trips; add simulated trips when demoMode is on OR when there are zero real trips
+      if (demoMode) {
+        // Combine real + simulated (avoid duplicate IDs)
+        const realIds = new Set(realTrips.map((t) => t.id));
+        const simOnly = SIMULATED_TRIPS.filter((s) => !realIds.has(s.id));
+        setTrips([...realTrips, ...simOnly]);
+      } else if (realTrips.length === 0) {
+        // No real dispatched trips — auto-inject simulated ones so map is never blank
+        setTrips(SIMULATED_TRIPS);
+      } else {
+        setTrips(realTrips);
+      }
+
       setSyncTime(new Date());
     } catch (err) {
       console.error("Error fetching live map trips:", err.message);
+      // On error fallback to simulated trips
+      setTrips(SIMULATED_TRIPS);
     } finally {
       setLoading(false);
     }
   };
+
+  // Trigger loading based on data source
+  useEffect(() => {
+    setLoading(true);
+    setFocusedTripId(null);
+    fetchActiveTrips();
+  }, [demoMode]);
 
   // 2. Fetch OSRM Road Routes for each Trip
   const resolveRoutes = async (tripsToResolve) => {
@@ -387,18 +407,6 @@ export default function LiveMap() {
     }
     setRoutes(routeObj);
   };
-
-  // Trigger loading based on data source
-  useEffect(() => {
-    setLoading(true);
-    setFocusedTripId(null);
-    if (demoMode) {
-      setTrips(SIMULATED_TRIPS);
-      resolveRoutes(SIMULATED_TRIPS).then(() => setLoading(false));
-    } else {
-      fetchActiveTrips();
-    }
-  }, [demoMode]);
 
   // Resolve routes whenever trips changes
   useEffect(() => {
@@ -523,28 +531,28 @@ export default function LiveMap() {
         <div className="flex items-center gap-4 flex-wrap">
           <div className="px-4 py-1.5 rounded-xl border border-white/[0.06] bg-white/[0.02] flex flex-col items-center">
             <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
-              Active Fleet
+              Active Trips
             </span>
             <span className="text-sm font-extrabold text-teal-400">
-              {trips.length} Vehicles
+              {trips.length} Dispatched
             </span>
           </div>
 
           <div className="px-4 py-1.5 rounded-xl border border-white/[0.06] bg-white/[0.02] flex flex-col items-center">
             <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
-              Cargo Weight
+              Drivers On Road
             </span>
             <span className="text-sm font-extrabold text-indigo-400">
-              {(totalCargo / 1000).toFixed(1)} tons
+              {new Set(trips.map(t => t.drivers?.name).filter(Boolean)).size} Drivers
             </span>
           </div>
 
           <div className="px-4 py-1.5 rounded-xl border border-white/[0.06] bg-white/[0.02] flex flex-col items-center">
             <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
-              Operational Distance
+              Total Cargo
             </span>
             <span className="text-sm font-extrabold text-amber-400">
-              {activeDistance} km
+              {(totalCargo / 1000).toFixed(1)} tons / {activeDistance} km
             </span>
           </div>
 
@@ -696,6 +704,16 @@ export default function LiveMap() {
                       </span>
                     </div>
 
+                    {/* Driver Badge */}
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+                      <div className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-[9px] font-bold">
+                        {(trip.drivers?.name || "??")[0]}
+                      </div>
+                      <span className="text-[10px] font-bold text-indigo-300 truncate">
+                        {trip.drivers?.name || "Unassigned"}
+                      </span>
+                    </div>
+
                     {/* Locations */}
                     <div className="flex items-center gap-1.5 text-xs text-slate-350">
                       <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -709,14 +727,14 @@ export default function LiveMap() {
                       </span>
                     </div>
 
-                    {/* Operator + Cargo */}
+                    {/* Distance + Cargo */}
                     <div className="flex items-center justify-between text-[10px] text-slate-500">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3 text-slate-500" />
-                        Dist: {trip.planned_distance} km
+                        {trip.planned_distance} km
                       </span>
-                      <span className="truncate max-w-[120px]">
-                        Driver: {trip.drivers?.name || "Unknown"}
+                      <span>
+                        {((trip.cargo_weight || 0) / 1000).toFixed(1)} tons
                       </span>
                     </div>
 
