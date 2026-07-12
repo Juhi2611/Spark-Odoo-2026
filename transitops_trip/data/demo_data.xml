@@ -3,37 +3,58 @@
     <data noupdate="1">
 
         <!--
-            Demo trips for transitops_trip module.
+            Demo data for transitops_trip module.
+            ===========================================
+            We create driver records here because transitops_core's demo_data.xml
+            only ships vehicles. These driver records use XML IDs in the
+            transitops_trip namespace — once Juhi adds drivers to transitops_core
+            with matching IDs, these can be removed.
 
-            Vehicle refs MUST match the XML IDs Juhi creates in
-            transitops_core/data/demo_data.xml:
-              - transitops_core.vehicle_bus_1042  (BUS-1042)
-              - transitops_core.vehicle_van_0217  (VAN-0217)
-              - transitops_core.vehicle_trk_0883  (TRK-0883)
-
-            Driver refs (coordinate with Juhi for exact XML IDs):
-              - transitops_core.driver_alex   ← the canonical "Alex" from the demo script
-              - transitops_core.driver_priya
-              - transitops_core.driver_rajan
-
-            NOTE: driver_id refs below use the expected IDs.  If Juhi uses
-            different IDs update these refs before installing.
-
-            The first trip (TRP-DEMO-001) re-creates the official hackathon
-            demo scenario:
-              Van-05 (capacity 500 kg) + Driver Alex + 450 kg cargo
-              → dispatched, then completed; both flip back to Available.
-            We use VAN-0217 as "Van-05" for demo purposes.
+            Vehicle refs (must match transitops_core demo_data.xml):
+              - transitops_core.vehicle_bus_1042  → BUS-1042  (max 5000 kg)
+              - transitops_core.vehicle_van_0217  → VAN-0217  (max 1500 kg)
+              - transitops_core.vehicle_trk_0883  → TRK-0883  (max 15000 kg)
         -->
 
-        <!-- ── Trip 1: The canonical hackathon demo scenario ─────────────
-             VAN-0217 (max load 500 kg) + Alex + 450 kg cargo
-             Status: completed (shows the full lifecycle in demo video)
-        -->
+        <!-- ══════════════════════════════════════════════════
+             Demo Drivers (owned by transitops_trip for now)
+             ══════════════════════════════════════════════════ -->
+        <record id="transitops_trip.demo_driver_alex" model="transitops.driver">
+            <field name="name">Alex Fernandez</field>
+            <field name="license_number">KA-DL-2019-001</field>
+            <field name="license_expiry_date">2028-06-30</field>
+            <field name="phone">9900112233</field>
+            <field name="status">available</field>
+        </record>
+
+        <record id="transitops_trip.demo_driver_priya" model="transitops.driver">
+            <field name="name">Priya Nair</field>
+            <field name="license_number">KA-DL-2020-002</field>
+            <field name="license_expiry_date">2027-12-31</field>
+            <field name="phone">9911223344</field>
+            <field name="status">available</field>
+        </record>
+
+        <record id="transitops_trip.demo_driver_rajan" model="transitops.driver">
+            <field name="name">Rajan Kumar</field>
+            <field name="license_number">KA-DL-2018-003</field>
+            <field name="license_expiry_date">2026-11-30</field>
+            <field name="phone">9922334455</field>
+            <field name="status">available</field>
+        </record>
+
+        <!-- ══════════════════════════════════════════════════
+             Demo Trips
+             ══════════════════════════════════════════════════
+
+             Trip 1 — The CANONICAL hackathon demo scenario:
+               VAN-0217 (max load 1500 kg) + Alex + 450 kg cargo
+               Status: completed  →  vehicle & driver back to available
+             ══════════════════════════════════════════════════ -->
         <record id="transitops_trip.demo_trip_001" model="transitops.trip">
             <field name="name">TRP-0001</field>
             <field name="vehicle_id" ref="transitops_core.vehicle_van_0217"/>
-            <field name="driver_id" ref="transitops_core.driver_alex"/>
+            <field name="driver_id" ref="transitops_trip.demo_driver_alex"/>
             <field name="source">Bangalore Depot</field>
             <field name="destination">Mysore Hub</field>
             <field name="planned_distance">140.0</field>
@@ -46,16 +67,17 @@
             <field name="final_odometer">23240.0</field>
             <field name="fuel_consumed">18.5</field>
             <field name="notes">
-                Canonical hackathon demo trip — VAN-0217 (500 kg capacity),
-                Driver Alex, 450 kg cargo. Dispatched and completed successfully.
+                Canonical hackathon demo trip — VAN-0217 (1500 kg capacity),
+                Driver Alex, 450 kg cargo (well within limit).
+                Dispatched and completed successfully.
             </field>
         </record>
 
-        <!-- ── Trip 2: BUS-1042 currently dispatched (on the road) ────── -->
+        <!-- Trip 2: BUS-1042 — currently dispatched (on the road) -->
         <record id="transitops_trip.demo_trip_002" model="transitops.trip">
             <field name="name">TRP-0002</field>
             <field name="vehicle_id" ref="transitops_core.vehicle_bus_1042"/>
-            <field name="driver_id" ref="transitops_core.driver_priya"/>
+            <field name="driver_id" ref="transitops_trip.demo_driver_priya"/>
             <field name="source">Bangalore KSR Station</field>
             <field name="destination">Hosur Industrial Area</field>
             <field name="planned_distance">45.0</field>
@@ -67,30 +89,30 @@
             <field name="notes">Worker shuttle — morning shift drop-off to Hosur.</field>
         </record>
 
-        <!-- ── Trip 3: Draft trip waiting to be dispatched ───────────── -->
+        <!-- Trip 3: Draft trip waiting for dispatch — uses TRK-0883 + Rajan -->
         <record id="transitops_trip.demo_trip_003" model="transitops.trip">
             <field name="name">TRP-0003</field>
-            <field name="vehicle_id" ref="transitops_core.vehicle_van_0217"/>
-            <field name="driver_id" ref="transitops_core.driver_rajan"/>
+            <field name="vehicle_id" ref="transitops_core.vehicle_trk_0883"/>
+            <field name="driver_id" ref="transitops_trip.demo_driver_rajan"/>
             <field name="source">Whitefield Warehouse</field>
             <field name="destination">Electronic City Phase 2</field>
             <field name="planned_distance">28.0</field>
-            <field name="cargo_weight">150.0</field>
+            <field name="cargo_weight">1200.0</field>
             <field name="departure_date">2026-07-12 14:00:00</field>
             <field name="arrival_date">2026-07-12 15:30:00</field>
             <field name="status">draft</field>
             <field name="notes">Afternoon delivery run — electronics components.</field>
         </record>
 
-        <!-- ── Trip 4: Long-haul truck trip — completed ───────────────── -->
+        <!-- Trip 4: Long-haul — completed (TRK-0883 previously used) -->
         <record id="transitops_trip.demo_trip_004" model="transitops.trip">
             <field name="name">TRP-0004</field>
             <field name="vehicle_id" ref="transitops_core.vehicle_trk_0883"/>
-            <field name="driver_id" ref="transitops_core.driver_alex"/>
+            <field name="driver_id" ref="transitops_trip.demo_driver_alex"/>
             <field name="source">Bangalore Logistics Park</field>
             <field name="destination">Hyderabad Distribution Centre</field>
             <field name="planned_distance">570.0</field>
-            <field name="cargo_weight">800.0</field>
+            <field name="cargo_weight">8000.0</field>
             <field name="departure_date">2026-07-10 06:00:00</field>
             <field name="arrival_date">2026-07-11 10:00:00</field>
             <field name="status">completed</field>
@@ -101,11 +123,11 @@
             <field name="notes">BLR-HYD long-haul shipment — heavy cargo, two-day trip.</field>
         </record>
 
-        <!-- ── Trip 5: Cancelled trip (shows cancellation flow) ──────── -->
+        <!-- Trip 5: Cancelled (shows cancellation flow) -->
         <record id="transitops_trip.demo_trip_005" model="transitops.trip">
             <field name="name">TRP-0005</field>
-            <field name="vehicle_id" ref="transitops_core.vehicle_bus_1042"/>
-            <field name="driver_id" ref="transitops_core.driver_priya"/>
+            <field name="vehicle_id" ref="transitops_core.vehicle_van_0217"/>
+            <field name="driver_id" ref="transitops_trip.demo_driver_priya"/>
             <field name="source">Yeshwanthpur Depot</field>
             <field name="destination">Tumkur Road Checkpoint</field>
             <field name="planned_distance">35.0</field>

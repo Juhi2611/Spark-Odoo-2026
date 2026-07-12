@@ -62,7 +62,7 @@
                         <group string="Assignment">
                             <field name="vehicle_id"
                                    options="{'no_create': True}"
-                                   domain="[('status', 'not in', ['on_trip', 'in_shop', 'retired'])]"/>
+                                   domain="[('status', 'not in', ['on_trip', 'in_shop', 'in_maintenance', 'retired'])]"/>
                             <field name="driver_id"
                                    options="{'no_create': True}"
                                    domain="[('status', 'not in', ['on_trip', 'suspended'])]"/>
@@ -111,7 +111,7 @@
         <field name="name">transitops.trip.list</field>
         <field name="model">transitops.trip</field>
         <field name="arch" type="xml">
-            <list string="Trips"
+            <tree string="Trips"
                   decoration-info="status == 'draft'"
                   decoration-warning="status == 'dispatched'"
                   decoration-success="status == 'completed'"
@@ -131,7 +131,7 @@
                        decoration-danger="status == 'cancelled'"/>
                 <field name="dispatched_at" optional="hide"/>
                 <field name="completed_at" optional="hide"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -196,7 +196,7 @@
     <record id="transitops_trip.action_trip_list" model="ir.actions.act_window">
         <field name="name">Trips</field>
         <field name="res_model">transitops.trip</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="transitops_trip.view_trip_search"/>
         <field name="context">{}</field>
         <field name="help" type="html">

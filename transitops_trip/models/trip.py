@@ -203,7 +203,12 @@ class Trip(models.Model):
     # ────────────────────────────────────────────────────────────────────────
 
     def _check_vehicle_availability(self):
-        """Raise UserError if the vehicle is already On Trip or in maintenance."""
+        """Raise UserError if the vehicle is already On Trip or in maintenance.
+
+        Dispatchable statuses: 'available', 'active', 'idle'
+        Blocked statuses:      'on_trip', 'in_shop', 'in_maintenance', 'retired'
+        """
+        BLOCKED = ('on_trip', 'in_shop', 'in_maintenance', 'retired')
         for rec in self:
             v = rec.vehicle_id
             if v.status == 'on_trip':
@@ -211,14 +216,18 @@ class Trip(models.Model):
                     f"Vehicle {v.name} is already On Trip and cannot be "
                     f"assigned to another trip (trip {rec.name})."
                 )
-            if v.status in ('in_shop', 'retired'):
+            if v.status in BLOCKED:
                 raise UserError(
                     f"Vehicle {v.name} has status '{v.status}' and cannot "
                     f"be dispatched (trip {rec.name})."
                 )
 
     def _check_driver_availability(self):
-        """Raise UserError if the driver is already On Trip or suspended."""
+        """Raise UserError if the driver is already On Trip or suspended.
+
+        Dispatchable statuses: 'available', 'on_duty'
+        Blocked statuses:      'on_trip', 'suspended', 'on_leave'
+        """
         for rec in self:
             d = rec.driver_id
             if d.status == 'on_trip':
@@ -231,7 +240,7 @@ class Trip(models.Model):
                     f"Driver {d.name} is suspended and cannot be dispatched "
                     f"(trip {rec.name})."
                 )
-            # Expired license check (requires license_expiry_date on driver)
+            # Expired license check
             expiry = d.license_expiry_date
             if expiry and expiry < fields.Date.today():
                 raise UserError(
