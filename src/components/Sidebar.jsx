@@ -11,30 +11,50 @@ import {
   LogOut,
   Truck,
   Route,
+  UserCheck,
 } from "lucide-react";
 
-const links = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/live-map", label: "Live Map", icon: Map },
-  { to: "/vehicles", label: "Vehicles", icon: Truck },
-  { to: "/trips", label: "Trips", icon: Route },
-  { to: "/maintenance", label: "Maintenance", icon: Wrench },
-  { to: "/fuel-expense", label: "Fuel & Expense", icon: Fuel },
-  { to: "/reports", label: "Reports", icon: BarChart3 },
+/**
+ * Master link list — each entry declares which roles may see it.
+ *   fleet_manager  → Vehicles, Drivers, Maintenance, Dashboard
+ *   driver         → Trips, Live Map
+ *   safety_officer → Dashboard, Drivers
+ *   financial_analyst → Fuel & Expense, Reports
+ *
+ * "all" or omitting `roles` grants access to every role.
+ */
+const allLinks = [
+  { to: "/dashboard",    label: "Dashboard",     icon: LayoutDashboard, roles: ["fleet_manager", "safety_officer"] },
+  { to: "/live-map",     label: "Live Map",      icon: Map,             roles: ["driver"] },
+  { to: "/vehicles",     label: "Vehicles",      icon: Truck,           roles: ["fleet_manager"] },
+  { to: "/drivers",      label: "Drivers",       icon: UserCheck,       roles: ["fleet_manager", "safety_officer"] },
+  { to: "/trips",        label: "Trips",         icon: Route,           roles: ["driver"] },
+  { to: "/maintenance",  label: "Maintenance",   icon: Wrench,          roles: ["fleet_manager"] },
+  { to: "/fuel-expense", label: "Fuel & Expense", icon: Fuel,           roles: ["financial_analyst"] },
+  { to: "/reports",      label: "Reports",       icon: BarChart3,       roles: ["financial_analyst"] },
 ];
 
+const roleDisplayNames = {
+  fleet_manager: "Fleet Manager",
+  driver: "Driver",
+  safety_officer: "Safety Officer",
+  financial_analyst: "Financial Analyst",
+  // Legacy fallbacks
+  manager: "Manager",
+  dispatcher: "Dispatcher",
+};
+
 export default function Sidebar() {
-  const [userProfile, setUserProfile] = useState({ name: "User", role: "Manager" });
+  const [userProfile, setUserProfile] = useState({ name: "User", role: "fleet_manager" });
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         const fullName = user.user_metadata?.full_name || "User";
-        const rawRole = user.user_metadata?.role || "manager";
-        const formattedRole = rawRole.charAt(0).toUpperCase() + rawRole.slice(1);
+        const rawRole = user.user_metadata?.role || "fleet_manager";
         setUserProfile({
           name: fullName,
-          role: formattedRole,
+          role: rawRole,
         });
       }
     });
@@ -43,6 +63,13 @@ export default function Sidebar() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
+
+  // Filter links based on current user role
+  const visibleLinks = allLinks.filter(
+    (link) => link.roles.includes(userProfile.role)
+  );
+
+  const displayRole = roleDisplayNames[userProfile.role] || userProfile.role;
 
   return (
     <aside className="fixed top-0 left-0 z-40 h-screen w-64 glass border-r border-white/[0.06] flex flex-col">
@@ -56,14 +83,14 @@ export default function Sidebar() {
             TransitOps
           </h1>
           <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">
-            Fleet Manager
+            {displayRole}
           </p>
         </div>
       </div>
 
       {/* ── Navigation ─────────────────────────────────── */}
       <nav className="flex-1 px-3 py-6 space-y-1">
-        {links.map(({ to, label, icon: Icon }) => (
+        {visibleLinks.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -95,7 +122,7 @@ export default function Sidebar() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-slate-300 truncate">{userProfile.name}</p>
-            <p className="text-[11px] text-slate-500 uppercase tracking-wider">{userProfile.role}</p>
+            <p className="text-[11px] text-slate-500 uppercase tracking-wider">{displayRole}</p>
           </div>
         </div>
         <button
@@ -109,4 +136,3 @@ export default function Sidebar() {
     </aside>
   );
 }
-

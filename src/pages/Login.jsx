@@ -7,7 +7,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState("manager");
+  const [role, setRole] = useState("fleet_manager");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -105,7 +105,7 @@ export default function Login() {
                 <input
                   type="text"
                   required
-                  placeholder="Snehi Patel"
+                  placeholder="Juhi Vanjara"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full bg-white/[0.03] border border-white/[0.08] text-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all placeholder-slate-500"
@@ -124,7 +124,7 @@ export default function Login() {
               <input
                 type="email"
                 required
-                placeholder="snehi@transitops.com"
+                placeholder="juhi@transitops.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-white/[0.03] border border-white/[0.08] text-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all placeholder-slate-500"
@@ -163,9 +163,10 @@ export default function Login() {
                   onChange={(e) => setRole(e.target.value)}
                   className="w-full bg-slate-900 border border-white/[0.08] text-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all cursor-pointer appearance-none"
                 >
-                  <option value="manager">Manager (Fleet/Maintenance)</option>
-                  <option value="dispatcher">Dispatcher (Trips)</option>
-                  <option value="driver">Driver</option>
+                  <option value="fleet_manager">Fleet Manager</option>
+                  <option value="driver">Driver (Trips & Dispatch)</option>
+                  <option value="safety_officer">Safety Officer</option>
+                  <option value="financial_analyst">Financial Analyst</option>
                 </select>
               </div>
             </div>

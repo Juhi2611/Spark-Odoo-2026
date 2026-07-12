@@ -15,6 +15,7 @@ export default function Vehicles() {
   const [status, setStatus] = useState("available");
   const [region, setRegion] = useState("north");
   const [maxLoadCapacity, setMaxLoadCapacity] = useState("");
+  const [odometer, setOdometer] = useState("");
   const [acquisitionCost, setAcquisitionCost] = useState("");
   const [formError, setFormError] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -59,6 +60,7 @@ export default function Vehicles() {
         status,
         region,
         max_load_capacity: parseFloat(maxLoadCapacity),
+        odometer: odometer ? parseFloat(odometer) : 0,
         acquisition_cost: parseFloat(acquisitionCost),
       };
 
@@ -72,6 +74,7 @@ export default function Vehicles() {
       setStatus("available");
       setRegion("north");
       setMaxLoadCapacity("");
+      setOdometer("");
       setAcquisitionCost("");
       setModalOpen(false);
       fetchVehicles();
@@ -130,7 +133,7 @@ export default function Vehicles() {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {["Name", "Registration No.", "Type", "Region", "Max Load (kg)", "Acquisition Cost", "Status"].map((col) => (
+                  {["Name", "Registration No.", "Type", "Region", "Max Load (kg)", "Odometer (km)", "Acquisition Cost", "Status"].map((col) => (
                     <th
                       key={col}
                       className="px-6 py-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wider"
@@ -154,6 +157,9 @@ export default function Vehicles() {
                     <td className="px-6 py-4 text-slate-400 capitalize">{v.region || "-"}</td>
                     <td className="px-6 py-4 text-slate-300">
                       {v.max_load_capacity?.toLocaleString("en-IN")} kg
+                    </td>
+                    <td className="px-6 py-4 text-slate-400">
+                      {v.odometer?.toLocaleString("en-IN") ?? 0} km
                     </td>
                     <td className="px-6 py-4 text-slate-300">
                       ₹{v.acquisition_cost?.toLocaleString("en-IN")}
@@ -283,20 +289,18 @@ export default function Vehicles() {
                     className="w-full bg-slate-900 border border-white/[0.08] text-slate-300 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all cursor-pointer"
                   >
                     <option value="available">Available</option>
-                    <option value="active">Active</option>
                     <option value="on_trip">On Trip</option>
                     <option value="in_shop">In Shop</option>
-                    <option value="in_maintenance">In Mnt</option>
                     <option value="retired">Retired</option>
                   </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 {/* Max Load Capacity */}
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Max Load Capacity (kg) *
+                    Max Load (kg) *
                   </label>
                   <input
                     type="number"
@@ -308,10 +312,24 @@ export default function Vehicles() {
                   />
                 </div>
 
+                {/* Odometer */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Odometer (km)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 12500"
+                    value={odometer}
+                    onChange={(e) => setOdometer(e.target.value)}
+                    className="w-full bg-white/[0.03] border border-white/[0.08] text-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+
                 {/* Acquisition Cost */}
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Acquisition Cost (₹) *
+                    Acq. Cost (₹) *
                   </label>
                   <input
                     type="number"
