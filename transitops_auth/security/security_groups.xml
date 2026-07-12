@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Category for TransitOps -->
+        <record id="transitops_auth.module_category_transitops" model="ir.module.category">
+            <field name="name">TransitOps</field>
+            <field name="description">TransitOps Access Groups</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Viewer Group -->
+        <record id="transitops_auth.group_viewer" model="res.groups">
+            <field name="name">Viewer</field>
+            <field name="category_id" ref="transitops_auth.module_category_transitops"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Read-only access to TransitOps models.</field>
+        </record>
+
+        <!-- Fleet Operator Group -->
+        <record id="transitops_auth.group_fleet_operator" model="res.groups">
+            <field name="name">Fleet Operator</field>
+            <field name="category_id" ref="transitops_auth.module_category_transitops"/>
+            <field name="implied_ids" eval="[(4, ref('transitops_auth.group_viewer'))]"/>
+            <field name="comment">Read and Create access to TransitOps models, no delete.</field>
+        </record>
+
+        <!-- Fleet Manager Group -->
+        <record id="transitops_auth.group_fleet_manager" model="res.groups">
+            <field name="name">Fleet Manager</field>
+            <field name="category_id" ref="transitops_auth.module_category_transitops"/>
+            <field name="implied_ids" eval="[(4, ref('transitops_auth.group_fleet_operator'))]"/>
+            <field name="comment">Full access to all TransitOps models.</field>
+        </record>
+    </data>
+</odoo>
