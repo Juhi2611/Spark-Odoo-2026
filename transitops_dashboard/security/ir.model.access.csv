@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_transitops_dashboard_kpi_user,transitops.dashboard.kpi.user,model_transitops_dashboard_kpi,base.group_user,1,1,1,1

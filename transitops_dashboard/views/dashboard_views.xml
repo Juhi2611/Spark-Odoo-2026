@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="transitops_dashboard.view_kpi_form" model="ir.ui.view">
+        <field name="name">transitops.dashboard.kpi.form</field>
+        <field name="model">transitops.dashboard.kpi</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false" delete="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Fleet KPI Dashboard</h1>
+                    </div>
+                    <group>
+                        <group string="Vehicles">
+                            <field name="active_vehicles"/>
+                            <field name="available_vehicles"/>
+                            <field name="vehicles_in_maintenance"/>
+                        </group>
+                        <group string="Trips">
+                            <field name="active_trips"/>
+                            <field name="pending_trips"/>
+                            <field name="fleet_utilization" widget="percentage"/>
+                        </group>
+                        <group string="Drivers">
+                            <field name="drivers_on_duty"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Menu Action to directly open the dashboard record -->
+    <record id="transitops_dashboard.action_kpi_dashboard" model="ir.actions.act_window">
+        <field name="name">KPI Dashboard</field>
+        <field name="res_model">transitops.dashboard.kpi</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="transitops_dashboard.main_kpi_dashboard"/>
+    </record>
+
+    <!-- Top-level menu -->
+    <menuitem id="transitops_dashboard.menu_root" name="TransitOps Dashboard" sequence="30" action="transitops_dashboard.action_kpi_dashboard"/>
+</odoo>
