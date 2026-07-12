@@ -10,12 +10,14 @@ import {
   Bus,
   LogOut,
   Truck,
+  Route,
 } from "lucide-react";
 
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/live-map", label: "Live Map", icon: Map },
   { to: "/vehicles", label: "Vehicles", icon: Truck },
+  { to: "/trips", label: "Trips", icon: Route },
   { to: "/maintenance", label: "Maintenance", icon: Wrench },
   { to: "/fuel-expense", label: "Fuel & Expense", icon: Fuel },
   { to: "/reports", label: "Reports", icon: BarChart3 },

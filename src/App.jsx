@@ -9,6 +9,8 @@ import FuelExpense from "./pages/FuelExpense";
 import Reports from "./pages/Reports";
 import Vehicles from "./pages/Vehicles";
 import Login from "./pages/Login";
+import Trips from "./pages/Trips";
+import SeedDrivers from "./pages/SeedDrivers";
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -54,6 +56,8 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/live-map" element={<LiveMap />} />
           <Route path="/vehicles" element={<Vehicles />} />
+          <Route path="/trips" element={<Trips />} />
+          <Route path="/seed-drivers" element={<SeedDrivers />} />
           <Route path="/maintenance" element={<Maintenance />} />
           <Route path="/fuel-expense" element={<FuelExpense />} />
           <Route path="/reports" element={<Reports />} />
