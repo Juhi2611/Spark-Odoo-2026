@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="transitops_core.view_driver_form" model="ir.ui.view">
+        <field name="name">transitops.driver.form</field>
+        <field name="model">transitops.driver</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="license_number"/>
+                            <field name="license_expiry_date"/>
+                        </group>
+                        <group>
+                            <field name="phone"/>
+                            <field name="status"/>
+                            <field name="vehicle_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree/List View -->
+    <record id="transitops_core.view_driver_tree" model="ir.ui.view">
+        <field name="name">transitops.driver.tree</field>
+        <field name="model">transitops.driver</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="license_number"/>
+                <field name="phone"/>
+                <field name="status"/>
+                <field name="vehicle_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="transitops_core.view_driver_search" model="ir.ui.view">
+        <field name="name">transitops.driver.search</field>
+        <field name="model">transitops.driver</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="license_number"/>
+                <field name="status"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Menu Action -->
+    <record id="transitops_core.action_drivers" model="ir.actions.act_window">
+        <field name="name">Drivers</field>
+        <field name="res_model">transitops.driver</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="transitops_core.menu_drivers" name="Drivers" parent="transitops_core.menu_root" action="transitops_core.action_drivers" sequence="20"/>
+</odoo>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="transitops_core.view_vehicle_form" model="ir.ui.view">
+        <field name="name">transitops.vehicle.form</field>
+        <field name="model">transitops.vehicle</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="vehicle_type"/>
+                            <field name="license_plate"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="region"/>
+                            <field name="capacity"/>
+                            <field name="model_year"/>
+                            <field name="max_load_capacity"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree/List View -->
+    <record id="transitops_core.view_vehicle_tree" model="ir.ui.view">
+        <field name="name">transitops.vehicle.tree</field>
+        <field name="model">transitops.vehicle</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="license_plate"/>
+                <field name="vehicle_type"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="transitops_core.view_vehicle_search" model="ir.ui.view">
+        <field name="name">transitops.vehicle.search</field>
+        <field name="model">transitops.vehicle</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="license_plate"/>
+                <field name="status"/>
+                <filter string="Active" name="active" domain="[('status', '=', 'active')]"/>
+                <filter string="Available" name="available" domain="[('status', '=', 'available')]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Menu Action -->
+    <record id="transitops_core.action_vehicles" model="ir.actions.act_window">
+        <field name="name">Vehicles</field>
+        <field name="res_model">transitops.vehicle</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Top-level menu and sub-menu -->
+    <menuitem id="transitops_core.menu_root" name="TransitOps Core" sequence="10"/>
+    <menuitem id="transitops_core.menu_vehicles" name="Vehicles" parent="transitops_core.menu_root" action="transitops_core.action_vehicles" sequence="10"/>
+</odoo>

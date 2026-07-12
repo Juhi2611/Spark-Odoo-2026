@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_transitops_vehicle_user,transitops.vehicle.user,model_transitops_vehicle,base.group_user,1,1,1,0
+access_transitops_driver_user,transitops.driver.user,model_transitops_driver,base.group_user,1,1,1,0
