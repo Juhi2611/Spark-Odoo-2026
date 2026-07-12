@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import { Lock, Mail, User, Shield, AlertCircle, ArrowRight } from "lucide-react";
+import Hero3D from "../components/Hero3D";
+import { Lock, Mail, User, Shield, AlertCircle, ArrowRight, Truck } from "lucide-react";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,148 +65,186 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 bg-radial-[circle_at_top] from-slate-900/60 to-slate-950 p-4">
-      {/* Background glow effects */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse duration-5000"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse duration-7000"></div>
+    <div className="min-h-screen grid lg:grid-cols-[1.05fr_1fr] fc-landing-bg">
+      {/* Left form panel */}
+      <div className="flex items-center justify-center p-6 md:p-12 relative">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <button
+            onClick={() => navigate("/landing")}
+            className="inline-flex items-center gap-2 mb-10 cursor-pointer"
+          >
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[oklch(0.66_0.19_255)] to-[oklch(0.7_0.17_300)] grid place-items-center fc-glow-primary">
+              <Truck className="h-4 w-4 text-white" />
+            </div>
+            <span className="font-display font-bold tracking-tight text-[oklch(0.97_0.005_250)]">TransitOps</span>
+          </button>
 
-      <div className="w-full max-w-md glass p-8 rounded-2xl border border-white/[0.08] relative z-10 animate-fade-in">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-teal-400 via-cyan-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">
-            TransitOps
+          <h1 className="font-display text-4xl font-bold tracking-tight text-[oklch(0.97_0.005_250)]">
+            {isSignUp ? "Create account." : "Welcome back."}
           </h1>
-          <p className="text-sm text-slate-400 mt-2">
-            {isSignUp ? "Create an account to join the fleet" : "Sign in to manage fleet operations"}
+          <p className="mt-2 text-[oklch(0.7_0.02_260)] text-sm">
+            {isSignUp ? "Join the fleet command center." : "Sign in to your fleet command center."}
           </p>
-        </div>
 
-        {/* Notifications */}
-        {error && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-start gap-2.5">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            <span>{error}</span>
-          </div>
-        )}
+          {/* Notifications */}
+          {error && (
+            <div className="mt-6 p-4 rounded-xl bg-[oklch(0.65_0.23_27/0.1)] border border-[oklch(0.65_0.23_27/0.2)] text-[oklch(0.75_0.15_27)] text-sm flex items-start gap-2.5">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
 
-        {message && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm flex items-start gap-2.5">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            <span>{message}</span>
-          </div>
-        )}
+          {message && (
+            <div className="mt-6 p-4 rounded-xl bg-[oklch(0.72_0.17_160/0.1)] border border-[oklch(0.72_0.17_160/0.2)] text-[oklch(0.72_0.17_160)] text-sm flex items-start gap-2.5">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <span>{message}</span>
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Full Name (Sign Up only) */}
-          {isSignUp && (
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Full Name
+          <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+            {/* Full Name (Sign Up only) */}
+            {isSignUp && (
+              <div>
+                <label className="text-xs font-medium text-[oklch(0.7_0.02_260)] uppercase tracking-widest">
+                  Full Name
+                </label>
+                <div className="mt-2 flex items-center gap-2 h-11 px-3 rounded-lg fc-surface-input focus-within:border-[oklch(0.66_0.19_255/0.6)] focus-within:ring-2 focus-within:ring-[oklch(0.66_0.19_255/0.2)] transition">
+                  <User className="h-4 w-4 text-[oklch(0.7_0.02_260)]" />
+                  <input
+                    type="text"
+                    required
+                    placeholder="Juhi Vanjara"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="flex-1 bg-transparent outline-none text-sm text-[oklch(0.97_0.005_250)] placeholder-[oklch(0.5_0.02_260)]"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Email */}
+            <div>
+              <label className="text-xs font-medium text-[oklch(0.7_0.02_260)] uppercase tracking-widest">
+                Email
               </label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <div className="mt-2 flex items-center gap-2 h-11 px-3 rounded-lg fc-surface-input focus-within:border-[oklch(0.66_0.19_255/0.6)] focus-within:ring-2 focus-within:ring-[oklch(0.66_0.19_255/0.2)] transition">
+                <Mail className="h-4 w-4 text-[oklch(0.7_0.02_260)]" />
                 <input
-                  type="text"
+                  type="email"
                   required
-                  placeholder="Juhi Vanjara"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/[0.08] text-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all placeholder-slate-500"
+                  placeholder="juhi@transitops.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 bg-transparent outline-none text-sm text-[oklch(0.97_0.005_250)] placeholder-[oklch(0.5_0.02_260)]"
                 />
               </div>
             </div>
-          )}
 
-          {/* Email */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="email"
-                required
-                placeholder="juhi@transitops.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-white/[0.03] border border-white/[0.08] text-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all placeholder-slate-500"
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="password"
-                required
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-white/[0.03] border border-white/[0.08] text-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all placeholder-slate-500"
-              />
-            </div>
-          </div>
-
-          {/* Role selection (Sign Up only) */}
-          {isSignUp && (
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                System Role
-              </label>
-              <div className="relative">
-                <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full bg-slate-900 border border-white/[0.08] text-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all cursor-pointer appearance-none"
-                >
-                  <option value="fleet_manager">Fleet Manager</option>
-                  <option value="driver">Driver (Trips & Dispatch)</option>
-                  <option value="safety_officer">Safety Officer</option>
-                  <option value="financial_analyst">Financial Analyst</option>
-                </select>
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-[oklch(0.7_0.02_260)] uppercase tracking-widest">
+                  Password
+                </label>
+                {/* {!isSignUp && (
+                  <span className="text-xs text-[oklch(0.66_0.19_255)] hover:underline cursor-pointer">Forgot?</span>
+                )} */}  
+              </div>
+              <div className="mt-2 flex items-center gap-2 h-11 px-3 rounded-lg fc-surface-input focus-within:border-[oklch(0.66_0.19_255/0.6)] focus-within:ring-2 focus-within:ring-[oklch(0.66_0.19_255/0.2)] transition">
+                <Lock className="h-4 w-4 text-[oklch(0.7_0.02_260)]" />
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="flex-1 bg-transparent outline-none text-sm text-[oklch(0.97_0.005_250)] placeholder-[oklch(0.5_0.02_260)]"
+                />
               </div>
             </div>
-          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 mt-4 px-5 py-3.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-bold text-sm shadow-lg shadow-teal-500/10 hover:shadow-teal-500/25 hover:scale-[1.01] transition-default disabled:opacity-50 disabled:scale-100 cursor-pointer"
-          >
-            {loading ? (
-              <span className="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
-            ) : (
-              <>
-                <span>{isSignUp ? "Sign Up" : "Sign In"}</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
+            {/* Role selection (Sign Up only) */}
+            {isSignUp && (
+              <div>
+                <label className="text-xs font-medium text-[oklch(0.7_0.02_260)] uppercase tracking-widest">
+                  System Role
+                </label>
+                <div className="mt-2 flex items-center gap-2 h-11 px-3 rounded-lg fc-surface-input focus-within:border-[oklch(0.66_0.19_255/0.6)] focus-within:ring-2 focus-within:ring-[oklch(0.66_0.19_255/0.2)] transition">
+                  <Shield className="h-4 w-4 text-[oklch(0.7_0.02_260)]" />
+                  <select
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="flex-1 bg-transparent outline-none text-sm text-[oklch(0.97_0.005_250)] cursor-pointer appearance-none"
+                  >
+                    <option value="fleet_manager">Fleet Manager</option>
+                    <option value="driver">Driver (Trips & Dispatch)</option>
+                    <option value="safety_officer">Safety Officer</option>
+                    <option value="financial_analyst">Financial Analyst</option>
+                  </select>
+                </div>
+              </div>
             )}
-          </button>
-        </form>
 
-        {/* Toggle Mode */}
-        <div className="mt-8 text-center border-t border-white/[0.04] pt-6">
-          <p className="text-xs text-slate-500">
-            {isSignUp ? "Already have an account?" : "Need an account for your module?"}{" "}
+            {/* Keep me signed in (Sign In only) */}
+            {!isSignUp && (
+              <div className="flex items-center gap-2 text-xs text-[oklch(0.7_0.02_260)]">
+                <input type="checkbox" defaultChecked className="accent-[oklch(0.66_0.19_255)]" />
+                Keep me signed in on this device
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 w-full h-11 rounded-lg bg-[oklch(0.66_0.19_255)] text-white font-semibold text-sm fc-glow-primary hover:shadow-[0_0_40px_-8px_oklch(0.66_0.19_255/0.55)] transition inline-flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            >
+              {loading ? (
+                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span>{isSignUp ? "Create account" : "Enter command center"}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+
+            {/* Role auto-detected info (Sign In only) */}
+            {!isSignUp && (
+              <div className="text-center text-xs text-[oklch(0.7_0.02_260)]">
+                <span className="text-[oklch(0.66_0.19_255)] font-medium"></span>
+              </div>
+            )}
+          </form>
+
+          {/* Toggle mode */}
+          <p className="mt-8 text-center text-xs text-[oklch(0.7_0.02_260)]">
+            {isSignUp ? "Already have an account?" : "New to TransitOps?"}{" "}
             <button
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setError("");
                 setMessage("");
               }}
-              className="text-teal-400 font-semibold hover:text-teal-300 transition-colors cursor-pointer"
+              className="text-[oklch(0.66_0.19_255)] font-semibold hover:underline cursor-pointer"
             >
               {isSignUp ? "Sign In" : "Sign Up"}
             </button>
           </p>
+        </div>
+      </div>
+
+      {/* Right 3D panel */}
+      <div className="relative hidden lg:block border-l border-white/[0.08] fc-grid-bg overflow-hidden">
+        <Hero3D compact />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[oklch(0.17_0.028_265/0.7)] via-transparent to-[oklch(0.17_0.028_265/0.4)] pointer-events-none" />
+        <div className="absolute bottom-10 left-10 right-10 z-10">
+          <div className="fc-glass-card p-5 max-w-sm">
+            <div className="text-xs text-[oklch(0.66_0.19_255)] uppercase tracking-widest mb-1">Live</div>
+            <div className="font-display text-lg font-semibold text-[oklch(0.97_0.005_250)]">14 vehicles en route</div>
+            <div className="text-xs text-[oklch(0.7_0.02_260)] mt-1">Global mesh · updated 3s ago</div>
+          </div>
         </div>
       </div>
     </div>

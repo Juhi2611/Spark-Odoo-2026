@@ -10,6 +10,7 @@ import Reports from "./pages/Reports";
 import Vehicles from "./pages/Vehicles";
 import Drivers from "./pages/Drivers";
 import Login from "./pages/Login";
+import Landing from "./pages/Landing";
 import Trips from "./pages/Trips";
 import SeedDrivers from "./pages/SeedDrivers";
 import ModuleFeature from "./pages/ModuleFeature";
@@ -24,7 +25,6 @@ const ROLE_DEFAULT_PAGE = {
   financial_analyst: "/fuel-expense",
   // Legacy fallbacks
   manager: "/dashboard",
-  dispatcher: "/trips",
 };
 
 export default function App() {
@@ -69,8 +69,15 @@ export default function App() {
     );
   }
 
+  // Not logged in — show landing page, login page, or redirect to landing
   if (!session) {
-    return <Login />;
+    return (
+      <Routes>
+        <Route path="/landing" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/landing" replace />} />
+      </Routes>
+    );
   }
 
   // Determine current user's role for the default redirect
@@ -107,6 +114,9 @@ export default function App() {
           <Route path="/compliance" element={<ModuleFeature />} />
           <Route path="/inspections" element={<ModuleFeature />} />
           <Route path="/export" element={<ModuleFeature />} />
+          {/* Redirect /landing and /login to dashboard when already logged in */}
+          <Route path="/landing" element={<Navigate to={defaultPage} replace />} />
+          <Route path="/login" element={<Navigate to={defaultPage} replace />} />
           <Route path="*" element={<Navigate to={defaultPage} replace />} />
         </Routes>
       </main>
